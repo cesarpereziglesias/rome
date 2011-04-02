@@ -12,7 +12,7 @@ class ValidationError(Exception):
 class Validator(object):
 
     def validate(self, value):
-        raise Exception("Not Implemented")
+        raise NotImplementedError()
 
 
 class MetaSchema(type):
@@ -22,8 +22,12 @@ class MetaSchema(type):
         cls._fields = {}
         for attr, attr_v in attrs.iteritems():
             if isinstance(attr_v, Validator):
-                cls._fields[attr] = attr_v
+                MetaSchema.__set_validator(cls, attr, attr_v)
         return cls
+
+    def __set_validator(cls, attr, attr_v):
+        at, mandatory = (attr[1:], False) if attr.startswith("_") else (attr, True)
+        cls._fields[at] = {'validator': attr_v, 'mandatory': mandatory}
 
 
 class Schema(Validator):
@@ -36,7 +40,9 @@ class Schema(Validator):
         for field, validator in self._fields.iteritems():
             try:
                 if field in value:
-                    result[field] = validator.validate(value[field])
+                    result[field] = validator['validator'].validate(value[field])
+                elif validator['mandatory']:
+                    ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error
 
