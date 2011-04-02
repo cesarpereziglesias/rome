@@ -2,6 +2,13 @@
 """
 """
 
+class ValidationError(Exception):
+
+    def __init__(self, msg):
+        Exception.__init__(self, msg)
+        self.error = msg
+
+
 class Validator(object):
 
     def validate(self, value):
@@ -12,10 +19,10 @@ class MetaSchema(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
-        cls.fields = {}
+        cls._fields = {}
         for attr, attr_v in attrs.iteritems():
             if isinstance(attr_v, Validator):
-                cls.fields[attr] = attr_v
+                cls._fields[attr] = attr_v
         return cls
 
 
