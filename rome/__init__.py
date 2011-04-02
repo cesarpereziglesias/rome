@@ -31,4 +31,16 @@ class Schema(Validator):
     __metaclass__ = MetaSchema
 
     def validate(self, value):
-        pass
+        errors = {}
+        result = {}
+        for field, validator in self._fields.iteritems():
+            try:
+                if field in value:
+                    result[field] = validator.validate(value[field])
+            except ValidationError as ve:
+                errors[field] = ve.error
+
+        if errors:
+            raise ValidationError(errors)
+
+        return result
