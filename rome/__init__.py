@@ -15,19 +15,27 @@ class Validator(object):
         raise NotImplementedError()
 
 
+class Field(object):
+
+    def __init__(self, validator, *args, **kwargs):
+        if 'mandatory' in kwargs and 'mandatory_if' in kwargs:
+            raise Exception("mandatory and mandatory_if can't be setted at the same time")
+
+        self.mandatory = kwargs.get('mandatory', False)
+        self.mandatory_if = kwargs.get('mandatory_if', None)
+
+        self.validator = validator
+
+
 class MetaSchema(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
         cls._fields = {}
         for attr, attr_v in attrs.iteritems():
-            if isinstance(attr_v, Validator):
-                MetaSchema.__set_validator(cls, attr, attr_v)
+            if isinstance(attr_v, Field):
+                cls._fields[attr] = attr_v
         return cls
-
-    def __set_validator(cls, attr, attr_v):
-        at, mandatory = (attr[1:], False) if attr.startswith("_") else (attr, True)
-        cls._fields[at] = {'validator': attr_v, 'mandatory': mandatory}
 
 
 class Schema(Validator):
@@ -37,11 +45,12 @@ class Schema(Validator):
     def validate(self, value):
         errors = {}
         result = {}
-        for field, validator in self._fields.iteritems():
+        for field, field_v in self._fields.iteritems():
             try:
                 if field in value:
-                    result[field] = validator['validator'].validate(value[field])
-                elif validator['mandatory']:
+                    result[field] = field_v.validator.validate(value[field])
+                elif (field_v.mandatory_if is not None and field_v.mandatory_if(self, value)) \
+                        or field_v.mandatory:
                     raise ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error

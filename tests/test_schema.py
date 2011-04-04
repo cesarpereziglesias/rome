@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from nose.tools import assert_equals, raises
 
-from rome import Schema, Validator, ValidationError
+from rome import Field, Schema, Validator, ValidationError
 
 class SUTValidator(Validator):
 
@@ -13,9 +13,9 @@ class SUTValidator(Validator):
 
 class SUTSchema(Schema):
 
-    field1 = SUTValidator()
-    field2 = SUTValidator()
-    _field3 = SUTValidator()
+    field1 = Field(SUTValidator(), mandatory=True)
+    field2 = Field(SUTValidator(), mandatory=True)
+    field3 = Field(SUTValidator())
 
 
 class TestSchema(object):
