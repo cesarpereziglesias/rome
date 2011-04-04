@@ -60,6 +60,7 @@ class TestSchema(object):
                           ve.error)
             raise
 
+    @raises(ValidationError)
     def test_missing_one_value(self):
         value = {'field1': 'foo'}
         try:
@@ -69,6 +70,7 @@ class TestSchema(object):
                           ve.error)
             raise
 
+    @raises(ValidationError)
     def test_missing_multiple_value(self):
         value = {'field3': 'foo'}
         try:

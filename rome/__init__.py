@@ -42,7 +42,7 @@ class Schema(Validator):
                 if field in value:
                     result[field] = validator['validator'].validate(value[field])
                 elif validator['mandatory']:
-                    ValidationError('Missing value')
+                    raise ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error
 
