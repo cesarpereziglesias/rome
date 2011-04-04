@@ -2,6 +2,7 @@
 from nose.tools import assert_equals, raises
 
 from rome import Field, Schema, Validator, ValidationError
+from tests import _TestValidator
 
 class SUTValidator(Validator):
 
@@ -13,70 +14,51 @@ class SUTValidator(Validator):
 
 class SUTSchema(Schema):
 
+    def field1_is_A(self, values):
+        return values.get('field1', None) == 'A'
+
     field1 = Field(SUTValidator(), mandatory=True)
     field2 = Field(SUTValidator(), mandatory=True)
     field3 = Field(SUTValidator())
+    field4 = Field(SUTValidator(), mandatory_if=field1_is_A)
 
 
-class TestSchema(object):
+class TestSchema(_TestValidator):
 
-    def setup(self):
-        self.schema = SUTSchema()
+    VALIDATOR = SUTSchema()
 
     def test_fields(self):
-        assert_equals(3, len(self.schema._fields))
+        assert_equals(4, len(self.VALIDATOR._fields))
 
     def test_valid(self):
-        value = {'field1': 'foo', 'field2': 'bar'}
-        assert_equals(value, self.schema.validate(value))
+        self.data = {'field1': 'foo', 'field2': 'bar'}
+        assert_equals(self.data, self.VALIDATOR.validate(self.data))
 
     def test_invalid_one_error(self):
-        value = {'field1': 'foo', 'field2': 'error'}
-        try:
-            self.schema.validate(value)
-        except ValidationError as ve:
-            assert_equals({'field2': 'Test Error'}, ve.error)
+        self.data = {'field1': 'foo', 'field2': 'error'}
+        self.data_error({'field2': 'Test Error'})
 
-    @raises(ValidationError)
     def test_invalid_multiple_error(self):
-        value = {'field1': 'error', 'field2': 'error'}
-        try:
-            self.schema.validate(value)
-        except ValidationError as ve:
-            assert_equals({'field1': 'Test Error',
-                           'field2': 'Test Error'},
-                          ve.error)
-            raise
+        self.data = {'field1': 'error', 'field2': 'error'}
+        self.data_error({'field1': 'Test Error',
+                         'field2': 'Test Error'})
 
-    @raises(ValidationError)
     def test_validate_not_mandatory_field(self):
-        value = {'field1': 'foo', 'field2': 'bar', 'field3': 'baz'}
-        assert_equals(value, self.schema.validate(value))
-        value['field3'] = 'error'
-        try:
-            self.schema.validate(value)
-        except ValidationError as ve:
-            assert_equals({'field3': 'Test Error'},
-                          ve.error)
-            raise
+        self.data = {'field1': 'foo', 'field2': 'bar', 'field3': 'baz'}
+        assert_equals(self.data, self.VALIDATOR.validate(self.data))
+        self.data['field3'] = 'error'
+        self.data_error({'field3': 'Test Error'})
 
-    @raises(ValidationError)
     def test_missing_one_value(self):
-        value = {'field1': 'foo'}
-        try:
-            self.schema.validate(value)
-        except ValidationError as ve:
-            assert_equals({'field2': 'Missing value'},
-                          ve.error)
-            raise
+        self.data = {'field1': 'foo'}
+        self.data_error({'field2': 'Missing value'})
 
-    @raises(ValidationError)
     def test_missing_multiple_value(self):
-        value = {'field3': 'foo'}
-        try:
-            self.schema.validate(value)
-        except ValidationError as ve:
-            assert_equals({'field1': 'Missing value',
-                           'field2': 'Missing value'},
-                          ve.error)
-            raise
+        self.data = {'field3': 'foo'}
+        self.data_error({'field1': 'Missing value',
+                         'field2': 'Missing value'})
+
+    def test_missing_field_mandatory_optional(self):
+        self.data = {'field1': 'A', 'field2': 'foo'}
+        self.data_error({'field4': 'Missing value'})
+
