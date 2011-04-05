@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from rome import Validator, ValidationError
 
+class String(Validator):
+
+    def validate(self, value):
+        pass
+
 class Number(Validator):
 
     def validate(self, value):
