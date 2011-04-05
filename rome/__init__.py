@@ -31,7 +31,8 @@ class MetaSchema(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
-        cls._fields = {}
+        cls._fields = getattr(cls, '_fields', {})
+
         for attr, attr_v in attrs.iteritems():
             if isinstance(attr_v, Field):
                 cls._fields[attr] = attr_v
