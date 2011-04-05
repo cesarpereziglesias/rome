@@ -44,15 +44,18 @@ class Schema(Validator):
 
     __metaclass__ = MetaSchema
 
+    def __init__ (self, dependencies=(), **kwargs):
+        self.__dependencies__ = dependencies
+
     def validate(self, value):
         errors = {}
         result = {}
         for field, field_v in self._fields.iteritems():
             try:
                 if field in value:
+                    self.__add_dependencies(field_v.validator, value)
                     result[field] = field_v.validator.validate(value[field])
-                elif (field_v.mandatory_if is not None and field_v.mandatory_if(self, value)) \
-                        or field_v.mandatory:
+                elif self.__is_mandatory(field_v, value):
                     raise ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error
@@ -61,3 +64,14 @@ class Schema(Validator):
             raise ValidationError(errors)
 
         return result
+
+    def __is_mandatory(self, field, values):
+        return (field.mandatory_if is not None and field.mandatory_if(self, values)) or field.mandatory
+
+    def __add_dependencies(self, schema, value):
+        if not isinstance(schema, Schema):
+            return
+
+        for dependencie in schema.__dependencies__:
+            if dependencie in value:
+                setattr(schema, dependencie, value[dependencie])
