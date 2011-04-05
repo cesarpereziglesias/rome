@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+from copy import copy
 
 class ValidationError(Exception):
 
@@ -31,7 +32,7 @@ class MetaSchema(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
-        cls._fields = getattr(cls, '_fields', {})
+        cls._fields = copy(getattr(cls, '_fields', {}))
 
         for attr, attr_v in attrs.iteritems():
             if isinstance(attr_v, Field):

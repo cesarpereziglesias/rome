@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
-from nose.tools import assert_equals, raises
+from nose.tools import assert_equals
 
 from rome import Field, Schema, Validator, ValidationError
+
 from tests import _TestValidator
-
-class SUTValidator(Validator):
-
-    def validate(self, value):
-        if value == 'error':
-            raise ValidationError('Test Error')
-        return value
-
+from tests.schema import SUTValidator
 
 class SUTSchema(Schema):
 
@@ -23,7 +17,7 @@ class SUTSchema(Schema):
     field4 = Field(SUTValidator(), mandatory_if=field1_is_A)
 
 
-class TestSchema(_TestValidator):
+class TestSimpleSchema(_TestValidator):
 
     VALIDATOR = SUTSchema()
 
@@ -32,7 +26,7 @@ class TestSchema(_TestValidator):
 
     def test_valid(self):
         self.data = {'field1': 'foo', 'field2': 'bar'}
-        assert_equals(self.data, self.VALIDATOR.validate(self.data))
+        self.data_ok()
 
     def test_invalid_one_error(self):
         self.data = {'field1': 'foo', 'field2': 'error'}
