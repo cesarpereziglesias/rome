@@ -14,7 +14,7 @@ class SUTSchema(Schema):
     field1 = Field(SUTValidator(), mandatory=True)
     field2 = Field(SUTValidator(), mandatory=True)
     field3 = Field(SUTValidator())
-    field4 = Field(SUTValidator(), mandatory_if=field1_is_A)
+    field4 = Field(SUTValidator(), mandatory=field1_is_A)
 
 
 class TestSimpleSchema(_TestValidator):

@@ -19,12 +19,7 @@ class Validator(object):
 class Field(object):
 
     def __init__(self, validator, *args, **kwargs):
-        if 'mandatory' in kwargs and 'mandatory_if' in kwargs:
-            raise Exception("mandatory and mandatory_if can't be setted at the same time")
-
         self.mandatory = kwargs.get('mandatory', False)
-        self.mandatory_if = kwargs.get('mandatory_if', None)
-
         self.validator = validator
 
 
@@ -66,7 +61,10 @@ class Schema(Validator):
         return result
 
     def __is_mandatory(self, field, values):
-        return (field.mandatory_if is not None and field.mandatory_if(self, values)) or field.mandatory
+        if callable(field.mandatory):
+            return field.mandatory(self, values)
+        else:
+            return field.mandatory
 
     def __add_dependencies(self, schema, value):
         if not isinstance(schema, Schema):

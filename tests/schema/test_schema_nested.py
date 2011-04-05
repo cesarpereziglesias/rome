@@ -10,7 +10,7 @@ class SUTSchemaNode(Schema):
         return self.guide == 'mandatory_condition'
 
     field = Field(SUTValidator(), mandatory=True)
-    field_guide = Field(SUTValidator(), mandatory_if=guide_condition)
+    field_guide = Field(SUTValidator(), mandatory=guide_condition)
 
 
 class SUTSchemaRoot(Schema):
