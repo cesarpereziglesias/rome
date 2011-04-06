@@ -28,9 +28,9 @@ class Field(Validator):
         self.mandatory = kwargs.get('mandatory', False)
         self.validators = [validator for validator in args if isinstance(validator, Validator)]
 
-        self.__compose_dependencies()
+        self._compose_dependencies()
 
-    def __compose_dependencies(self):
+    def _compose_dependencies(self):
         [self.__dependencies__.append(dep) for dep in \
             chain.from_iterable([validator.__dependencies__ for validator in self.validators]) \
             if dep not in self.__dependencies__]
@@ -38,13 +38,30 @@ class Field(Validator):
     def validate(self, value, dependencies={}):
         result = value
         for validator in self.validators:
-            self.__add_dependencies(validator, dependencies)
+            self._add_dependencies(validator, dependencies)
             result = validator.validate(value)
         return result
 
-    def __add_dependencies(self, validator, dependencies):
+    def _add_dependencies(self, validator, dependencies):
         for dep in validator.__dependencies__:
             dep in dependencies and setattr(validator, dep, dependencies[dep])
+
+
+class FieldList(Field):
+
+    def validate(self, value, dependencies={}):
+        errors = []
+        result = []
+        for item in value + [] if isinstance(value, list) else [value]:
+            try:
+                result.append(Field.validate(self, item, dependencies=dependencies))
+                errors.append(None)
+            except ValidationError as ve:
+                errors.append(ve.error)
+        if any(errors):
+            raise ValidationError(errors)
+
+        return result
 
 
 class MetaSchema(type):

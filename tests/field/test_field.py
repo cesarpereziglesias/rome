@@ -1,22 +1,18 @@
 #-*- coding: utf-8 -*-
-from rome import Validator, Field, ValidationError
+from rome import Field
 
-from tests import _TestValidator
+from tests import _TestValidator, SUTValidator
 
-class SUTValidator1(Validator):
+class SUTValidator1(SUTValidator):
 
-    def validate(self, value):
-        if value == '1':
-            raise ValidationError("Test Error 1")
-        return value
+    STR_ERROR = '1'
+    MSG_ERROR = 'Test Error 1'
 
 
-class SUTValidator2(Validator):
+class SUTValidator2(SUTValidator):
 
-    def validate(self, value):
-        if value == '2':
-            raise ValidationError("Test Error 2")
-        return value
+    STR_ERROR = '2'
+    MSG_ERROR = 'Test Error 2'
 
 
 class TestField(_TestValidator):

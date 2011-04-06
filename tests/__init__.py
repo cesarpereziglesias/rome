@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
 from nose.tools import assert_equals, raises
 
-from rome import ValidationError
+from rome import Validator, ValidationError
+
+class SUTValidator(Validator):
+
+    STR_ERROR = 'error'
+    MSG_ERROR = 'Test Error'
+
+    def validate(self, value):
+        if value == self.STR_ERROR:
+            raise ValidationError(self.MSG_ERROR)
+        return value
+
 
 class _TestValidator(object):
 

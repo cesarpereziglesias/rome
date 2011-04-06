@@ -3,8 +3,7 @@ from nose.tools import assert_equals
 
 from rome import Field, Schema, Validator, ValidationError
 
-from tests import _TestValidator
-from tests.schema import SUTValidator
+from tests import _TestValidator, SUTValidator
 
 class SUTSchema(Schema):
 

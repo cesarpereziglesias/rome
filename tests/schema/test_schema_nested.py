@@ -1,8 +1,7 @@
 #-*- coding: utf-8 -*-
 from rome import Field, Schema, Validator
 
-from tests import _TestValidator
-from tests.schema import SUTValidator
+from tests import _TestValidator, SUTValidator
 
 class SUTSchemaNode(Schema):
 
