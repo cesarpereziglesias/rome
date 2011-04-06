@@ -2,6 +2,7 @@
 """
 """
 from copy import copy
+from itertools import chain
 
 class ValidationError(Exception):
 
@@ -12,15 +13,38 @@ class ValidationError(Exception):
 
 class Validator(object):
 
-    def validate(self, value):
+    def __init__(self, *args, **kwargs):
+        self.__dependencies__ = kwargs.get('dependencies', [])
+
+    def validate(self, value, **kwargs):
         raise NotImplementedError()
 
 
-class Field(object):
+class Field(Validator):
 
-    def __init__(self, validator, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        Validator.__init__(self, *args, **kwargs)
+
         self.mandatory = kwargs.get('mandatory', False)
-        self.validator = validator
+        self.validators = [validator for validator in args if isinstance(validator, Validator)]
+
+        self.__compose_dependencies()
+
+    def __compose_dependencies(self):
+        [self.__dependencies__.append(dep) for dep in \
+            chain.from_iterable([validator.__dependencies__ for validator in self.validators]) \
+            if dep not in self.__dependencies__]
+
+    def validate(self, value, dependencies={}):
+        result = value
+        for validator in self.validators:
+            self.__add_dependencies(validator, dependencies)
+            result = validator.validate(value)
+        return result
+
+    def __add_dependencies(self, validator, dependencies):
+        for dep in validator.__dependencies__:
+            dep in dependencies and setattr(validator, dep, dependencies[dep])
 
 
 class MetaSchema(type):
@@ -39,17 +63,14 @@ class Schema(Validator):
 
     __metaclass__ = MetaSchema
 
-    def __init__ (self, dependencies=(), **kwargs):
-        self.__dependencies__ = dependencies
-
     def validate(self, value):
         errors = {}
         result = {}
         for field, field_v in self._fields.iteritems():
             try:
                 if field in value:
-                    self.__add_dependencies(field_v.validator, value)
-                    result[field] = field_v.validator.validate(value[field])
+                    deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
+                    result[field] = field_v.validate(value[field], dependencies=deps)
                 elif self.__is_mandatory(field_v, value):
                     raise ValidationError('Missing value')
             except ValidationError as ve:
@@ -65,11 +86,3 @@ class Schema(Validator):
             return field.mandatory(self, values)
         else:
             return field.mandatory
-
-    def __add_dependencies(self, schema, value):
-        if not isinstance(schema, Schema):
-            return
-
-        for dependencie in schema.__dependencies__:
-            if dependencie in value:
-                setattr(schema, dependencie, value[dependencie])
