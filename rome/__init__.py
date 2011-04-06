@@ -49,9 +49,17 @@ class Field(Validator):
 
 class FieldList(Field):
 
+    def __init__(self, *args, **kwargs):
+        Field.__init__(self, *args, **kwargs)
+        self.max = kwargs.get('max', None)
+        self.min = kwargs.get('min', None)
+
     def validate(self, value, dependencies={}):
         errors = []
         result = []
+
+        self._check_length(value)
+
         for item in value + [] if isinstance(value, list) else [value]:
             try:
                 result.append(Field.validate(self, item, dependencies=dependencies))
@@ -62,6 +70,12 @@ class FieldList(Field):
             raise ValidationError(errors)
 
         return result
+
+    def _check_length(self, values):
+        if self.max is not None and len(values) > self.max:
+            raise ValidationError("%d items maximum permitted" % self.max)
+        if self.min is not None and len(values) < self.min:
+            raise ValidationError("%d items minimum permitted" % self.min)
 
 
 class MetaSchema(type):
