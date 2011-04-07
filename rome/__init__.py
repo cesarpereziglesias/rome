@@ -60,7 +60,7 @@ class FieldList(Field):
 
         self._check_length(value)
 
-        for item in value + [] if isinstance(value, list) else [value]:
+        for item in value if isinstance(value, (list, tuple)) else [value]:
             try:
                 result.append(Field.validate(self, item, dependencies=dependencies))
                 errors.append(None)
