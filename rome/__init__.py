@@ -20,6 +20,21 @@ class Validator(object):
         raise NotImplementedError()
 
 
+class CombinedValidator(Validator):
+
+    __combined_fields__ = ()
+
+    def __init__(self, *args, **kwargs):
+        Validator.__init__(self, *args, **kwargs)
+
+        if len(self.__combined_fields__) != len(args):
+            raise TypeError('__init__() takes exactly %(expected)d arguments (%(given)d given)' %
+                            {'expected': len(self.__combined_fields__), 'given': len(args)})
+
+        for combined_field, field in zip(self.__combined_fields__, args):
+            setattr(self, combined_field, field)
+
+
 class Field(Validator):
 
     def __init__(self, *args, **kwargs):
