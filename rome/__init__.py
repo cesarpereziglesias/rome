@@ -25,7 +25,7 @@ class Field(Validator):
     def __init__(self, *args, **kwargs):
         Validator.__init__(self, *args, **kwargs)
 
-        self.mandatory = kwargs.get('mandatory', False)
+        self.mandatory = kwargs.get('mandatory', True)
         self.validators = [validator for validator in args if isinstance(validator, Validator)]
 
         self._compose_dependencies()

@@ -8,14 +8,14 @@ class SUTSchemaNode(Schema):
     def guide_condition(self, value):
         return self.guide == 'mandatory_condition'
 
-    field = Field(SUTValidator(), mandatory=True)
+    field = Field(SUTValidator())
     field_guide = Field(SUTValidator(), mandatory=guide_condition)
 
 
 class SUTSchemaRoot(Schema):
 
-    guide = Field(SUTValidator(), mandatory=True)
-    node = Field(SUTSchemaNode(dependencies=('guide',)), mandatory=True)
+    guide = Field(SUTValidator())
+    node = Field(SUTSchemaNode(dependencies=('guide',)))
 
 
 class TestNestedSchema(_TestValidator):

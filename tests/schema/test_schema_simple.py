@@ -10,9 +10,9 @@ class SUTSchema(Schema):
     def field1_is_A(self, values):
         return values.get('field1', None) == 'A'
 
-    field1 = Field(SUTValidator(), mandatory=True)
-    field2 = Field(SUTValidator(), mandatory=True)
-    field3 = Field(SUTValidator())
+    field1 = Field(SUTValidator())
+    field2 = Field(SUTValidator())
+    field3 = Field(SUTValidator(), mandatory=False)
     field4 = Field(SUTValidator(), mandatory=field1_is_A)
 
 
