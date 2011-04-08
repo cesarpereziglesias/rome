@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from nose.tools import assert_equals, raises
 
-from rome import Validator, ValidationError
+from rome import Validator, CombinedValidator, ValidationError
 
 class SUTValidator(Validator):
 
@@ -12,6 +12,14 @@ class SUTValidator(Validator):
         if value == self.STR_ERROR:
             raise ValidationError(self.MSG_ERROR)
         return value
+
+class SUTCombinedValidator(CombinedValidator):
+
+    __combined_fields__ = ('field1', 'field2')
+
+    def validate(self, value):
+        if value[self.field1] == value[self.field2]:
+            raise ValidationError("Test Error")
 
 
 class _TestValidator(object):

@@ -25,7 +25,7 @@ class CombinedValidator(Validator):
     __combined_fields__ = ()
 
     def __init__(self, *args, **kwargs):
-        Validator.__init__(self, *args, **kwargs)
+        Validator.__init__(self, dependencies=args, **kwargs)
 
         if len(self.__combined_fields__) != len(args):
             raise TypeError('__init__() takes exactly %(expected)d arguments (%(given)d given)' %
@@ -60,6 +60,22 @@ class Field(Validator):
     def _add_dependencies(self, validator, dependencies):
         for dep in validator.__dependencies__:
             dep in dependencies and setattr(validator, dep, dependencies[dep])
+
+
+class FieldCombined(Field):
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 1:
+            raise TypeError("FieldCombined accepts only one validator")
+
+        Field.__init__(self, *args, **kwargs)
+        self.destination = kwargs.get('destination', None)
+
+        if not isinstance(self.validators[0], CombinedValidator):
+            raise TypeError("FieldCombined accepts only CombinedValidator validators")
+
+    def _add_dependencies(self, validator, dependencies):
+        pass
 
 
 class FieldList(Field):
@@ -98,9 +114,12 @@ class MetaSchema(type):
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
         cls._fields = copy(getattr(cls, '_fields', {}))
+        cls._combined_fields = copy(getattr(cls, '_combined_fields', {}))
 
         for attr, attr_v in attrs.iteritems():
-            if isinstance(attr_v, Field):
+            if isinstance(attr_v, FieldCombined):
+                cls._combined_fields[attr] = attr_v
+            elif isinstance(attr_v, Field):
                 cls._fields[attr] = attr_v
         return cls
 
@@ -121,6 +140,14 @@ class Schema(Validator):
                     raise ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error
+
+        for field, field_v in self._combined_fields.iteritems():
+            try:
+                if set(field_v.__dependencies__).isdisjoint(errors.keys()):
+                    deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
+                    field_v.validate(value, dependencies=deps)
+            except ValidationError as ve:
+                errors[field if field_v.destination is None else field_v.destination] = ve.error
 
         if errors:
             raise ValidationError(errors)
