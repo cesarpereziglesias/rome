@@ -42,6 +42,8 @@ class Field(Validator):
 
         self.mandatory = kwargs.get('mandatory', True)
         self.validators = [validator for validator in args if isinstance(validator, Validator)]
+        if 'default' in kwargs:
+            self.default = kwargs['default']
 
         self._compose_dependencies()
 
@@ -133,9 +135,10 @@ class Schema(Validator):
         result = {}
         for field, field_v in self._fields.iteritems():
             try:
-                if field in value:
+                if field in value or hasattr(field_v, 'default'):
+                    test_value = value[field] if field in value else field_v.default
                     deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
-                    result[field] = field_v.validate(value[field], dependencies=deps)
+                    result[field] = field_v.validate(test_value, dependencies=deps)
                 elif self.__is_mandatory(field_v, value):
                     raise ValidationError('Missing value')
             except ValidationError as ve:
