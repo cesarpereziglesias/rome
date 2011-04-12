@@ -52,9 +52,9 @@ class Number(Validator):
 
 class In(Validator):
 
-    def __init__(self, values, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Validator.__init__(self, *args, **kwargs)
-        self._values = values
+        self._values = args
 
     def validate(self, value):
         if value not in self._values:

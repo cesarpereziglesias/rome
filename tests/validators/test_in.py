@@ -6,7 +6,7 @@ from tests import _TestValidator
 class TestIn(_TestValidator):
 
     VALUES = ['foo', 'bar']
-    VALIDATOR = In(VALUES)
+    VALIDATOR = In(*VALUES)
 
     def test_valid(self):
         self.data = 'foo'
