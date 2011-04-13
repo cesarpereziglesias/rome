@@ -65,6 +65,13 @@ class Field(Validator):
             dep in dependencies and setattr(validator, dep, dependencies[dep])
 
 
+class FieldConstant(Field):
+
+    def __init__(self, value, *args, **kwargs):
+        Validator.__init__(self, *args, **kwargs)
+        self.value = value
+
+
 class FieldCombined(Field):
 
     def __init__(self, *args, **kwargs):
@@ -116,14 +123,17 @@ class MetaSchema(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
+        cls._constant_fields = copy(getattr(cls, '_constant_fields', {}))
         cls._fields = copy(getattr(cls, '_fields', {}))
         cls._combined_fields = copy(getattr(cls, '_combined_fields', {}))
 
-        for attr, attr_v in attrs.iteritems():
-            if isinstance(attr_v, FieldCombined):
-                cls._combined_fields[attr] = attr_v
-            elif isinstance(attr_v, Field):
-                cls._fields[attr] = attr_v
+        for attr, field in attrs.iteritems():
+            if isinstance(field, FieldConstant):
+                cls._constant_fields[attr] = field
+            elif isinstance(field, FieldCombined):
+                cls._combined_fields[attr] = field
+            elif isinstance(field, Field):
+                cls._fields[attr] = field
         return cls
 
 
@@ -134,25 +144,31 @@ class Schema(Validator):
     def validate(self, value):
         errors = {}
         result = {}
-        for field, field_v in self._fields.iteritems():
+        # Constant fields
+        for field, validator in self._constant_fields.iteritems():
+            result[field] = validator.value
+
+        # Regular fields validation
+        for field, validator in self._fields.iteritems():
             try:
-                if field in value or hasattr(field_v, 'default'):
-                    self.__is_forbidden(field_v, value)
-                    test_value = value[field] if field in value else field_v.default
-                    deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
-                    result[field] = field_v.validate(test_value, dependencies=deps)
-                elif self.__is_mandatory(field_v, value):
+                if field in value or hasattr(validator, 'default'):
+                    self.__is_forbidden(validator, value)
+                    test_value = value[field] if field in value else validator.default
+                    deps = self.__lookup_dependencies(validator.__dependencies__, value, result)
+                    result[field] = validator.validate(test_value, dependencies=deps)
+                elif self.__is_mandatory(validator, value):
                     raise ValidationError('Missing value')
             except ValidationError as ve:
                 errors[field] = ve.error
 
-        for field, field_v in self._combined_fields.iteritems():
+        # Combined fields validation
+        for field, validator in self._combined_fields.iteritems():
             try:
-                if set(field_v.__dependencies__).isdisjoint(errors.keys()):
-                    deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
-                    field_v.validate(value, dependencies=deps)
+                if set(validator.__dependencies__).isdisjoint(errors.keys()):
+                    deps = self.__lookup_dependencies(validator.__dependencies__, value, result)
+                    validator.validate(value, dependencies=deps)
             except ValidationError as ve:
-                errors[field if field_v.destination is None else field_v.destination] = ve.error
+                errors[field if validator.destination is None else validator.destination] = ve.error
 
         if errors:
             raise ValidationError(errors)
@@ -168,3 +184,6 @@ class Schema(Validator):
             return field.mandatory(self, values)
         else:
             return field.mandatory
+
+    def __lookup_dependencies(self, dependencies, values, result):
+        return dict([(dep, values[dep] if dep in values else result[dep]) for dep in dependencies])
