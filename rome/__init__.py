@@ -41,6 +41,7 @@ class Field(Validator):
         Validator.__init__(self, *args, **kwargs)
 
         self.mandatory = kwargs.get('mandatory', True)
+        self.forbidden = kwargs.get('forbidden', None)
         self.validators = [validator for validator in args if isinstance(validator, Validator)]
         if 'default' in kwargs:
             self.default = kwargs['default']
@@ -136,6 +137,7 @@ class Schema(Validator):
         for field, field_v in self._fields.iteritems():
             try:
                 if field in value or hasattr(field_v, 'default'):
+                    self.__is_forbidden(field_v, value)
                     test_value = value[field] if field in value else field_v.default
                     deps = dict([(dep, value[dep]) for dep in field_v.__dependencies__])
                     result[field] = field_v.validate(test_value, dependencies=deps)
@@ -156,6 +158,10 @@ class Schema(Validator):
             raise ValidationError(errors)
 
         return result
+
+    def __is_forbidden(self, field, values):
+        if hasattr(field, 'forbidden') and callable(field.forbidden) and field.forbidden(self, values):
+            raise ValidationError("Forbidden by conditions")
 
     def __is_mandatory(self, field, values):
         if callable(field.mandatory):

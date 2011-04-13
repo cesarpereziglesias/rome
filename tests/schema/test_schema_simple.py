@@ -10,18 +10,21 @@ class SUTSchema(Schema):
     def field1_is_A(self, values):
         return values.get('field1', None) == 'A'
 
+    def field2_is_A(self, values):
+        return values.get('field2', None) == 'A'
+
     field1 = Field(SUTValidator())
     field2 = Field(SUTValidator())
     field3 = Field(SUTValidator(), mandatory=False)
     field4 = Field(SUTValidator(), mandatory=field1_is_A)
-
+    field5 = Field(SUTValidator(), mandatory=False, forbidden=field2_is_A)
 
 class TestSimpleSchema(_TestValidator):
 
     VALIDATOR = SUTSchema()
 
     def test_fields(self):
-        assert_equals(4, len(self.VALIDATOR._fields))
+        assert_equals(5, len(self.VALIDATOR._fields))
 
     def test_valid(self):
         self.data = {'field1': 'foo', 'field2': 'bar'}
@@ -54,4 +57,8 @@ class TestSimpleSchema(_TestValidator):
     def test_missing_field_mandatory_optional(self):
         self.data = {'field1': 'A', 'field2': 'foo'}
         self.data_error({'field4': 'Missing value'})
+
+    def test_field_forbidden_present(self):
+        self.data = {'field1': 'foo', 'field2': 'A', 'field5': 'foo'}
+        self.data_error({'field5': 'Forbidden by conditions'})
 
