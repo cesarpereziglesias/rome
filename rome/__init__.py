@@ -144,11 +144,23 @@ class Schema(Validator):
     def validate(self, value):
         errors = {}
         result = {}
-        # Constant fields
+
+        self.__constant_fields_validation(value, result)
+
+        self.__regular_fields_validation(value, result, errors)
+
+        self.__combined_fields_validation(value, result, errors)
+
+        if errors:
+            raise ValidationError(errors)
+
+        return result
+
+    def __constant_fields_validation(self, value, result):
         for field, validator in self._constant_fields.iteritems():
             result[field] = validator.value
 
-        # Regular fields validation
+    def __regular_fields_validation(self, value, result, errors):
         for field, validator in self._fields.iteritems():
             try:
                 if field in value or hasattr(validator, 'default'):
@@ -161,7 +173,7 @@ class Schema(Validator):
             except ValidationError as ve:
                 errors[field] = ve.error
 
-        # Combined fields validation
+    def __combined_fields_validation(self, value, result, errors):
         for field, validator in self._combined_fields.iteritems():
             try:
                 if set(validator.__dependencies__).isdisjoint(errors.keys()):
@@ -169,11 +181,6 @@ class Schema(Validator):
                     validator.validate(value, dependencies=deps)
             except ValidationError as ve:
                 errors[field if validator.destination is None else validator.destination] = ve.error
-
-        if errors:
-            raise ValidationError(errors)
-
-        return result
 
     def __is_forbidden(self, field, values):
         if hasattr(field, 'forbidden') and callable(field.forbidden) and field.forbidden(self, values):
@@ -186,4 +193,5 @@ class Schema(Validator):
             return field.mandatory
 
     def __lookup_dependencies(self, dependencies, values, result):
-        return dict([(dep, values[dep] if dep in values else result[dep]) for dep in dependencies])
+        return dict([(dep, values[dep] if dep in values else result[dep]) for dep in dependencies \
+                if dep in values or dep in result])
