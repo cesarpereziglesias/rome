@@ -50,6 +50,14 @@ class Number(Validator):
             raise ValidationError("This is not a number")
 
 
+class Int(Validator):
+
+    def validate(self, value):
+        if isinstance(value, int):
+            return value
+        raise ValidationError("This is not an integer")
+
+
 class In(Validator):
 
     def __init__(self, *args, **kwargs):
