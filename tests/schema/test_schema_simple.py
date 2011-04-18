@@ -62,3 +62,18 @@ class TestSimpleSchema(_TestValidator):
         self.data = {'field1': 'foo', 'field2': 'A', 'field5': 'foo'}
         self.data_error({'field5': 'Forbidden by conditions'})
 
+
+class SUTSchemaFieldsRemoved(SUTSchema):
+
+    field1 = Field(SUTValidator())
+    field2 = Field(SUTValidator())
+    field3 = None # Field removed
+    field4 = None # Field removed
+    field5 = None # Field removed
+
+class TestSimpleSchemaFieldsRemoved(_TestValidator):
+
+    VALIDATOR = SUTSchemaFieldsRemoved()
+
+    def test_fields(self):
+        assert_equals(2, len(self.VALIDATOR._fields))

@@ -127,6 +127,8 @@ class MetaSchema(type):
         cls._fields = copy(getattr(cls, '_fields', {}))
         cls._combined_fields = copy(getattr(cls, '_combined_fields', {}))
 
+        print name
+        print cls._fields
         for attr, field in attrs.iteritems():
             if isinstance(field, FieldConstant):
                 cls._constant_fields[attr] = field
@@ -134,6 +136,10 @@ class MetaSchema(type):
                 cls._combined_fields[attr] = field
             elif isinstance(field, Field):
                 cls._fields[attr] = field
+            elif attr in cls._fields and field is None:
+                # Remove field
+                del(cls._fields[attr])
+        print cls._fields
         return cls
 
 
