@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from rome import Validator, ValidationError
 
 class String(Validator):
@@ -67,4 +69,15 @@ class In(Validator):
     def validate(self, value):
         if value not in self._values:
             raise ValidationError('Value must be in list [%s]' % ', '.join(self._values))
+        return value
+
+
+class Email(Validator):
+
+    # RFC 2822
+    REGEXP = '[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])'
+
+    def validate(self, value):
+        if not re.match(self.REGEXP, value):
+            raise ValidationError('This is not a valid email')
         return value
