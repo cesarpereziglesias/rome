@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 from rome import Field, Schema, Validator
+from rome.language import _
 
 from tests import _TestValidator, SUTValidator
 
@@ -28,12 +29,12 @@ class TestNestedSchema(_TestValidator):
 
     def test_root_invalid(self):
         self.data = {'guide': 'foo'}
-        self.data_error({'node': 'Missing value'})
+        self.data_error({'node': _('Missing value')})
 
     def test_node_invalid(self):
         self.data = {'guide': 'foo', 'node': {}}
-        self.data_error({'node': {'field': 'Missing value'}})
+        self.data_error({'node': {'field': _('Missing value')}})
 
     def test_mandatory_depends_root(self):
         self.data = {'guide': 'mandatory_condition', 'node': {'field': 'foo'}}
-        self.data_error({'node': {'field_guide': 'Missing value'}})
+        self.data_error({'node': {'field_guide': _('Missing value')}})

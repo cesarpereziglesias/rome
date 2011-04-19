@@ -1,0 +1,77 @@
+# Spanish translations for rome.
+# Copyright (C) 2011 ORGANIZATION
+# This file is distributed under the same license as the rome project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: rome 0.1\n"
+"Report-Msgid-Bugs-To: cesarpereziglesias@gmail.com\n"
+"POT-Creation-Date: 2011-04-19 17:11+0200\n"
+"PO-Revision-Date: 2011-04-19 16:44+0200\n"
+"Last-Translator: Cesar Alberto Perez Iglesias "
+"<cesarpereziglesias@gmail.com>\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: rome/__init__.py:119
+#, python-format
+msgid "%(max)i items maximum permitted"
+msgstr "Se permiten %(max)i elementos como máximo"
+
+#: rome/__init__.py:121
+#, python-format
+msgid "%(min)i items minimum permitted"
+msgstr "Se permiten %(min)i elementos como mínimo"
+
+#: rome/__init__.py:177
+msgid "Missing value"
+msgstr "Campo obligatorio"
+
+#: rome/__init__.py:192
+msgid "Forbidden by conditions"
+msgstr "Prohibido por determinadas condiciones"
+
+#: rome/validators.py:20
+msgid "This is not a String"
+msgstr "El valor tiene que ser una cadena"
+
+#: rome/validators.py:28
+msgid "Please enter a value"
+msgstr "Introduzca un valor"
+
+#: rome/validators.py:32
+#, python-format
+msgid "Value length must be %(length)i exactly"
+msgstr "El tamaño de la cadena tienes que ser de %(length)i"
+
+#: rome/validators.py:35
+#, python-format
+msgid "Value length must be %(max)i or less"
+msgstr "El tamaño de la cadena tiene un máximo de %(max)i"
+
+#: rome/validators.py:39
+#, python-format
+msgid "Value length must be %(min)i or more"
+msgstr "El tamaño de la cadena tiene un mínimo de %(min)i"
+
+#: rome/validators.py:54
+msgid "This is not a number"
+msgstr "El valor tiene que ser un número"
+
+#: rome/validators.py:62
+msgid "This is not an integer"
+msgstr "El valor tiene que ser un entero"
+
+#: rome/validators.py:73
+#, python-format
+msgid "Value must be in list [%(values)s]"
+msgstr "El valor debe de estar en la lista [%(values)s]"
+
+#: rome/validators.py:85
+msgid "This is not a valid email"
+msgstr "El formato del email introducido no es valido"

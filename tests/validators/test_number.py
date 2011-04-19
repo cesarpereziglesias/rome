@@ -2,6 +2,7 @@
 from nose.tools import assert_equals
 
 from rome.validators import Number
+from rome.language import _
 
 from tests import _TestValidator
 
@@ -25,4 +26,4 @@ class TestNumber(_TestValidator):
 
     def test_invalid_number(self):
         self.data = 'foo'
-        self.data_error("This is not a number")
+        self.data_error(_("This is not a number"))

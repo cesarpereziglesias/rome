@@ -2,6 +2,7 @@
 import re
 
 from rome import Validator, ValidationError
+from rome.language import _
 
 class String(Validator):
 
@@ -16,7 +17,7 @@ class String(Validator):
 
     def validate(self, value):
         if not isinstance(value, basestring):
-            raise  ValidationError("This is not a String")
+            raise  ValidationError(_("This is not a String"))
 
         self.attr_validate(value)
 
@@ -24,17 +25,18 @@ class String(Validator):
 
     def attr_validate(self, value):
         if not self.empty and value == '':
-            raise ValidationError('Please enter a value')
+            raise ValidationError(_('Please enter a value'))
 
         if self.max is not None:
             if self.min == self.max and self.max != len(value):
-                raise ValidationError("Value length must be %i exactly" % self.max)
+                raise ValidationError(_("Value length must be %(length)i exactly") %
+                                        {'length': self.max})
             if len(value) > self.max:
-                raise ValidationError("Value length must be %i or less" % self.max)
+                raise ValidationError(_("Value length must be %(max)i or less") % {'max': self.max})
 
         if self.min is not None:
             if len(value) < self.min:
-                raise ValidationError("Value length must be %i or more" % self.min)
+                raise ValidationError(_("Value length must be %(min)i or more") % {'min': self.min})
 
 
 class Number(Validator):
@@ -49,7 +51,7 @@ class Number(Validator):
                 pass
             return f_result
         except ValueError:
-            raise ValidationError("This is not a number")
+            raise ValidationError(_("This is not a number"))
 
 
 class Int(Validator):
@@ -57,7 +59,7 @@ class Int(Validator):
     def validate(self, value):
         if isinstance(value, int):
             return value
-        raise ValidationError("This is not an integer")
+        raise ValidationError(_("This is not an integer"))
 
 
 class In(Validator):
@@ -68,7 +70,8 @@ class In(Validator):
 
     def validate(self, value):
         if value not in self._values:
-            raise ValidationError('Value must be in list [%s]' % ', '.join(self._values))
+            raise ValidationError(_('Value must be in list [%(values)s]') %
+                                    {'values': ', '.join(self._values)})
         return value
 
 
@@ -79,5 +82,5 @@ class Email(Validator):
 
     def validate(self, value):
         if not re.match(self.REGEXP, value):
-            raise ValidationError('This is not a valid email')
+            raise ValidationError(_('This is not a valid email'))
         return value

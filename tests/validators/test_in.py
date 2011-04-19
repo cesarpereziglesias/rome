@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 from rome.validators import In
+from rome.language import _
 
 from tests import _TestValidator
 
@@ -14,4 +15,5 @@ class TestIn(_TestValidator):
 
     def test_invalid(self):
         self.data = 'baz'
-        self.data_error('Value must be in list [%s]' % ', '.join(self.VALUES))
+        self.data_error(_('Value must be in list [%(values)s]') %
+                            {'values': ', '.join(self.VALUES)})

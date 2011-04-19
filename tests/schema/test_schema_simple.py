@@ -2,6 +2,7 @@
 from nose.tools import assert_equals
 
 from rome import Field, Schema, Validator, ValidationError
+from rome.language import _
 
 from tests import _TestValidator, SUTValidator
 
@@ -47,20 +48,20 @@ class TestSimpleSchema(_TestValidator):
 
     def test_missing_one_value(self):
         self.data = {'field1': 'foo'}
-        self.data_error({'field2': 'Missing value'})
+        self.data_error({'field2': _('Missing value')})
 
     def test_missing_multiple_value(self):
         self.data = {'field3': 'foo'}
-        self.data_error({'field1': 'Missing value',
-                         'field2': 'Missing value'})
+        self.data_error({'field1': _('Missing value'),
+                         'field2': _('Missing value')})
 
     def test_missing_field_mandatory_optional(self):
         self.data = {'field1': 'A', 'field2': 'foo'}
-        self.data_error({'field4': 'Missing value'})
+        self.data_error({'field4': _('Missing value')})
 
     def test_field_forbidden_present(self):
         self.data = {'field1': 'foo', 'field2': 'A', 'field5': 'foo'}
-        self.data_error({'field5': 'Forbidden by conditions'})
+        self.data_error({'field5': _('Forbidden by conditions')})
 
 
 class SUTSchemaFieldsRemoved(SUTSchema):

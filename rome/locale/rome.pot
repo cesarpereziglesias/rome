@@ -1,0 +1,77 @@
+# Translations template for rome.
+# Copyright (C) 2011 ORGANIZATION
+# This file is distributed under the same license as the rome project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: rome 0.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2011-04-19 17:11+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: rome/__init__.py:119
+#, python-format
+msgid "%(max)i items maximum permitted"
+msgstr ""
+
+#: rome/__init__.py:121
+#, python-format
+msgid "%(min)i items minimum permitted"
+msgstr ""
+
+#: rome/__init__.py:177
+msgid "Missing value"
+msgstr ""
+
+#: rome/__init__.py:192
+msgid "Forbidden by conditions"
+msgstr ""
+
+#: rome/validators.py:20
+msgid "This is not a String"
+msgstr ""
+
+#: rome/validators.py:28
+msgid "Please enter a value"
+msgstr ""
+
+#: rome/validators.py:32
+#, python-format
+msgid "Value length must be %(length)i exactly"
+msgstr ""
+
+#: rome/validators.py:35
+#, python-format
+msgid "Value length must be %(max)i or less"
+msgstr ""
+
+#: rome/validators.py:39
+#, python-format
+msgid "Value length must be %(min)i or more"
+msgstr ""
+
+#: rome/validators.py:54
+msgid "This is not a number"
+msgstr ""
+
+#: rome/validators.py:62
+msgid "This is not an integer"
+msgstr ""
+
+#: rome/validators.py:73
+#, python-format
+msgid "Value must be in list [%(values)s]"
+msgstr ""
+
+#: rome/validators.py:85
+msgid "This is not a valid email"
+msgstr ""
+

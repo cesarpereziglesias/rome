@@ -4,6 +4,8 @@
 from copy import copy
 from itertools import chain
 
+from rome.language import _
+
 class ValidationError(Exception):
 
     def __init__(self, msg):
@@ -114,9 +116,9 @@ class FieldList(Field):
 
     def _check_length(self, values):
         if self.max is not None and len(values) > self.max:
-            raise ValidationError("%d items maximum permitted" % self.max)
+            raise ValidationError(_("%(max)i items maximum permitted") % {'max': self.max})
         if self.min is not None and len(values) < self.min:
-            raise ValidationError("%d items minimum permitted" % self.min)
+            raise ValidationError(_("%(min)i items minimum permitted") % {'min': self.min})
 
 
 class MetaSchema(type):
@@ -172,7 +174,7 @@ class Schema(Validator):
                     deps = self.__lookup_dependencies(validator.__dependencies__, value, result)
                     result[field] = validator.validate(test_value, dependencies=deps)
                 elif self.__is_mandatory(validator, value):
-                    raise ValidationError('Missing value')
+                    raise ValidationError(_('Missing value'))
             except ValidationError as ve:
                 errors[field] = ve.error
 
@@ -187,7 +189,7 @@ class Schema(Validator):
 
     def __is_forbidden(self, field, values):
         if hasattr(field, 'forbidden') and callable(field.forbidden) and field.forbidden(self, values):
-            raise ValidationError("Forbidden by conditions")
+            raise ValidationError(_("Forbidden by conditions"))
 
     def __is_mandatory(self, field, values):
         if callable(field.mandatory):
