@@ -5,14 +5,14 @@ from tests import _TestValidator, SUTValidator
 
 class SUTValidator1(SUTValidator):
 
+    __errors__ = {'test_error': 'Test Error 1'}
     STR_ERROR = '1'
-    MSG_ERROR = 'Test Error 1'
 
 
 class SUTValidator2(SUTValidator):
 
+    __errors__ = {'test_error': 'Test Error 2'}
     STR_ERROR = '2'
-    MSG_ERROR = 'Test Error 2'
 
 
 class TestField(_TestValidator):

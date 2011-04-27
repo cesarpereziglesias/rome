@@ -13,13 +13,34 @@ class ValidationError(Exception):
         self.error = msg
 
 
+class MetaValidator(type):
+
+    def __new__(cls, name, bases, attrs):
+        cls = type.__new__(cls, name, bases, attrs)
+        cls._errors = copy(getattr(cls, '__errors__', {}))
+        cls._errors.update(attrs.get('__errors__', {}))
+        return cls
+
+
 class Validator(object):
+
+    __metaclass__ = MetaValidator
+
+    __errors__ = {}
 
     def __init__(self, *args, **kwargs):
         self.__dependencies__ = kwargs.get('dependencies', [])
+        self._custom_errors = kwargs.get('errors', {})
 
     def validate(self, value, **kwargs):
         raise NotImplementedError()
+
+    def get_list_errors(self):
+        return dict([(key, self._custom_errors[key] if key in self._custom_errors \
+            else self._errors[key]) for key in self._errors])
+
+    def _validation_error(self, error, **kwargs):
+        raise ValidationError(self.get_list_errors()[error] % kwargs)
 
 
 class CombinedValidator(Validator):
@@ -92,6 +113,9 @@ class FieldCombined(Field):
 
 class FieldList(Field):
 
+    __errors__ = {'max_error': _("%(max)i items maximum permitted"),
+                  'min_error': _("%(min)i items minimum permitted")}
+
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
         self.max = kwargs.get('max', None)
@@ -116,15 +140,15 @@ class FieldList(Field):
 
     def _check_length(self, values):
         if self.max is not None and len(values) > self.max:
-            raise ValidationError(_("%(max)i items maximum permitted") % {'max': self.max})
+            self._validation_error('max_error', max=self.max)
         if self.min is not None and len(values) < self.min:
-            raise ValidationError(_("%(min)i items minimum permitted") % {'min': self.min})
+            self._validation_error('min_error', min=self.min)
 
 
-class MetaSchema(type):
+class MetaSchema(MetaValidator):
 
     def __new__(cls, name, bases, attrs):
-        cls = type.__new__(cls, name, bases, attrs)
+        cls = MetaValidator.__new__(cls, name, bases, attrs)
         cls._constant_fields = copy(getattr(cls, '_constant_fields', {}))
         cls._fields = copy(getattr(cls, '_fields', {}))
         cls._combined_fields = copy(getattr(cls, '_combined_fields', {}))
@@ -145,15 +169,15 @@ class MetaSchema(type):
 class Schema(Validator):
 
     __metaclass__ = MetaSchema
+    __errors__ = {'missing': _('Missing value'),
+                  'forbidden': _("Forbidden by conditions")}
 
     def validate(self, value):
         errors = {}
         result = {}
 
         self.__constant_fields_validation(value, result)
-
         self.__regular_fields_validation(value, result, errors)
-
         self.__combined_fields_validation(value, result, errors)
 
         if errors:
@@ -174,7 +198,7 @@ class Schema(Validator):
                     deps = self.__lookup_dependencies(validator.__dependencies__, value, result)
                     result[field] = validator.validate(test_value, dependencies=deps)
                 elif self.__is_mandatory(validator, value):
-                    raise ValidationError(_('Missing value'))
+                    self._validation_error('missing')
             except ValidationError as ve:
                 errors[field] = ve.error
 
@@ -189,7 +213,7 @@ class Schema(Validator):
 
     def __is_forbidden(self, field, values):
         if hasattr(field, 'forbidden') and callable(field.forbidden) and field.forbidden(self, values):
-            raise ValidationError(_("Forbidden by conditions"))
+            self._validation_error('forbidden')
 
     def __is_mandatory(self, field, values):
         if callable(field.mandatory):

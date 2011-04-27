@@ -5,21 +5,22 @@ from rome import Validator, CombinedValidator, ValidationError
 
 class SUTValidator(Validator):
 
+    __errors__ = {'test_error': 'Test Error'}
     STR_ERROR = 'error'
-    MSG_ERROR = 'Test Error'
 
     def validate(self, value):
         if value == self.STR_ERROR:
-            raise ValidationError(self.MSG_ERROR)
+            self._validation_error('test_error')
         return value
 
 class SUTCombinedValidator(CombinedValidator):
 
+    __errors__ = {'test_error': 'Test Error'}
     __combined_fields__ = ('field1', 'field2')
 
     def validate(self, value):
         if value[self.field1] == value[self.field2]:
-            raise ValidationError("Test Error")
+            raise self._validation_error('test_error')
 
 
 class _TestValidator(object):
