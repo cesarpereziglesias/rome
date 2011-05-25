@@ -2,6 +2,7 @@
 ------------------
 
 * Validator's errors no propagation problem fixed
+* Coverage package added in setup
 
 
 0.1.2 (2011-05-03)

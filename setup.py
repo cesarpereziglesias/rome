@@ -2,10 +2,11 @@
 from setuptools import setup, find_packages
 
 NAME = 'rome'
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 requires = ['Babel',
-            'nose']
+            'nose',
+            'coverage']
 
 setup(name=NAME,
       version=VERSION,
