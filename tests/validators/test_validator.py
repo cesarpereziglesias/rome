@@ -56,3 +56,15 @@ class TestValidatorErrors(object):
     def test_custom_inexistent_error(self):
         validator = SUTValidator(errors={'foo_error': 'Foo Error'})
         assert_equals({'test_error': 'Test Error'}, validator.get_list_errors())
+
+
+class SUTValidatorInherited(SUTValidator):
+
+    __errors__ = {'test_error2': 'Test Error 2'}
+
+class TestValidatorErrorsInherited(object):
+
+    def test_errors_inherited(self):
+        validator = SUTValidatorInherited()
+        assert_equals({'test_error': 'Test Error', 'test_error2': 'Test Error 2'},
+                      validator.get_list_errors())

@@ -17,7 +17,7 @@ class MetaValidator(type):
 
     def __new__(cls, name, bases, attrs):
         cls = type.__new__(cls, name, bases, attrs)
-        cls._errors = copy(getattr(cls, '__errors__', {}))
+        cls._errors = copy(getattr(cls, '_errors', {}))
         cls._errors.update(attrs.get('__errors__', {}))
         return cls
 
