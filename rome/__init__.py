@@ -160,9 +160,12 @@ class MetaSchema(MetaValidator):
                 cls._combined_fields[attr] = field
             elif isinstance(field, Field):
                 cls._fields[attr] = field
-            elif attr in cls._fields and field is None:
+            elif (attr in cls._fields or attr in cls._combined_fields or attr in cls._constant_fields) \
+                    and field is None:
                 # Remove field
-                del(cls._fields[attr])
+                if attr in cls._fields: del(cls._fields[attr])
+                if attr in cls._combined_fields: del(cls._combined_fields[attr])
+                if attr in cls._constant_fields: del(cls._constant_fields[attr])
         return cls
 
 
