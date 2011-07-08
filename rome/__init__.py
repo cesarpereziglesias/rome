@@ -85,7 +85,11 @@ class Field(Validator):
 
     def _add_dependencies(self, validator, dependencies):
         for dep in validator.__dependencies__:
-            dep in dependencies and setattr(validator, dep, dependencies[dep])
+            value = None
+            if dep in dependencies:
+                value = dependencies[dep]
+
+            setattr(validator, dep, value)
 
 
 class FieldConstant(Field):
