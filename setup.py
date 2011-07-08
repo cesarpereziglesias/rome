@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 NAME = 'rome'
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 requires = ['Babel',
             'nose',
